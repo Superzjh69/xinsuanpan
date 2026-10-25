@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>薪算盘 - 工资、年终奖、房贷、存款利息在线计算器</title>
+<meta name="description" content="薪算盘：免费在线理财小工具，工资到手、五险一金、年终奖个税、房贷月供、提前还款、存款利息，一算就清楚。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html"><span>🧮</span>薪算盘</a>
+    <nav class="nav">
+      <a href="salary.html">工资到手</a>
+      <a href="bonus.html">年终奖</a>
+      <a href="mortgage.html">房贷</a>
+      <a href="deposit.html">存款利息</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <section class="hero">
+    <h1>算清楚你的<em>每一分钱</em></h1>
+    <p>工资到手多少、年终奖怎么发最省税、房贷要还多少利息——不用注册，填个数马上出结果。</p>
+  </section>
+
+  <section class="tools">
+    <a class="tool-card" href="salary.html">
+      <div class="icon">💰</div>
+      <h2>工资到手计算器</h2>
+      <p>输入税前工资，算出五险一金、个税各扣多少，每月实际到手多少，公司还额外为你缴了多少。</p>
+    </a>
+    <a class="tool-card" href="bonus.html">
+      <div class="icon">🧧</div>
+      <h2>年终奖计税器</h2>
+      <p>年终奖单独计税还是并入工资？自动对比哪种省税，并提醒"多发一元反而少拿"的临界点陷阱。</p>
+    </a>
+    <a class="tool-card" href="mortgage.html">
+      <div class="icon">🏠</div>
+      <h2>房贷计算器</h2>
+      <p>等额本息、等额本金月供与总利息对比，提前还款选缩短年限还是减少月供，一算便知。</p>
+    </a>
+    <a class="tool-card" href="deposit.html">
+      <div class="icon">🏦</div>
+      <h2>存款利息计算器</h2>
+      <p>定期存款到期本息、单利复利对比，每月攒一笔钱多年后能攒下多少。</p>
+    </a>
+  </section>
+
+  <section class="faq">
+    <h2>常见问题</h2>
+    <details>
+      <summary>税前工资 15000，到手大概多少？</summary>
+      <p>按公积金 12%、常见社保比例估算，每月五险一金个人部分约 2775 元，个税约 300 余元，到手约 11900 元左右。实际情况受缴费基数、专项附加扣除影响，用<a href="salary.html">工资到手计算器</a>填你的真实数字更准确。</p>
+    </details>
+    <details>
+      <summary>年终奖为什么要小心 36000 这个数？</summary>
+      <p>年终奖单独计税时，36000 元是税率从 3% 跳到 10% 的临界点：发 36000 元缴税 1080 元，发 36001 元却要缴约 3390 元。多发一元少拿两千多，类似临界点还有 14.4 万、30 万等，详见<a href="bonus.html">年终奖计算器</a>。</p>
+    </details>
+    <details>
+      <summary>等额本息和等额本金选哪个好？</summary>
+      <p>等额本金总利息更少但前期月供高；等额本息每月固定、前期压力小。如果打算提前还款或近期换房，通常越早还越划算。用<a href="mortgage.html">房贷计算器</a>对比两种方式的具体差额。</p>
+    </details>
+    <details>
+      <summary>计算结果准确吗？</summary>
+      <p>本站按国家现行税率表和通行社保比例计算，结果为估算参考。各地社保基数上下限、公积金比例、银行计息规则存在差异，正式决策请以官方渠道核算为准。</p>
+    </details>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p>薪算盘 · 计算结果为估算，具体以当地社保政策、税务及银行为准。</p>
+  </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>工资到手计算器 - 五险一金、个税、税后工资在线计算 | 薪算盘</title>
+<meta name="description" content="输入税前工资，一键算出五险一金个人缴纳、个人所得税和每月到手工资，支持公积金比例、专项附加扣除，显示公司为你缴纳的部分。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💰</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html"><span>🧮</span>薪算盘</a>
+    <nav class="nav">
+      <a href="salary.html" class="active">工资到手</a>
+      <a href="bonus.html">年终奖</a>
+      <a href="mortgage.html">房贷</a>
+      <a href="deposit.html">存款利息</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="page-title">
+    <h1>工资到手计算器</h1>
+    <p>输入税前月薪，立刻算出扣完五险一金和个税后，你实际到手的钱。</p>
+  </div>
+
+  <div class="calc-grid">
+    <!-- 左：输入 -->
+    <section class="card">
+      <h2>填写你的情况</h2>
+
+      <div class="field">
+        <label for="salary">税前月薪</label>
+        <div class="suffix-wrap">
+          <input type="number" id="salary" value="15000" min="0" step="100">
+          <span class="suffix">元/月</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label>五险一金缴费基数</label>
+        <div class="segmented" id="baseMode">
+          <button type="button" data-mode="same" class="active">按税前月薪</button>
+          <button type="button" data-mode="custom">自己填写</button>
+        </div>
+        <div class="field hidden" id="baseField" style="margin-top:10px; margin-bottom:0;">
+          <div class="suffix-wrap">
+            <input type="number" id="insBase" value="15000" min="0">
+            <span class="suffix">元/月</span>
+          </div>
+        </div>
+        <div class="hint">基数一般按本人月平均工资确定，各地设有上下限（通常为社会平均工资的 60%–300%）。</div>
+      </div>
+
+      <div class="field two-col">
+        <div>
+          <label for="hfRate">公积金比例（个人+公司各缴）</label>
+          <select id="hfRate">
+            <option value="5">5%</option>
+            <option value="6">6%</option>
+            <option value="7">7%</option>
+            <option value="8">8%</option>
+            <option value="10">10%</option>
+            <option value="12" selected>12%</option>
+          </select>
+        </div>
+        <div>
+          <label for="special">专项附加扣除合计</label>
+          <div class="suffix-wrap">
+            <input type="number" id="special" value="0" min="0" step="100">
+            <span class="suffix">元/月</span>
+          </div>
+        </div>
+      </div>
+      <div class="chips" id="specialChips">
+        <button type="button" class="chip" data-amt="2000">子女教育 +2000</button>
+        <button type="button" class="chip" data-amt="2000">婴幼儿照护 +2000</button>
+        <button type="button" class="chip" data-amt="3000">赡养老人 +3000</button>
+        <button type="button" class="chip" data-amt="1000">房贷利息 +1000</button>
+        <button type="button" class="chip" data-amt="1500">住房租金 +1500</button>
+        <button type="button" class="chip" data-amt="400">继续教育 +400</button>
+      </div>
+      <div class="hint" style="margin-top:6px;">点选你符合的项目，金额可再手动修改。赡养老人 3000 为独生子女标准。</div>
+
+      <details class="advanced">
+        <summary>高级设置：公司缴纳比例（各地略有差异）</summary>
+        <div class="two-col">
+          <div class="field">
+            <label for="cPension">公司养老</label>
+            <div class="suffix-wrap"><input type="number" id="cPension" value="16" step="0.5"><span class="suffix">%</span></div>
+          </div>
+          <div class="field">
+            <label for="cMedical">公司医疗</label>
+            <div class="suffix-wrap"><input type="number" id="cMedical" value="8" step="0.5"><span class="suffix">%</span></div>
+          </div>
+          <div class="field">
+            <label for="cUnemployment">公司失业</label>
+            <div class="suffix-wrap"><input type="number" id="cUnemployment" value="0.5" step="0.1"><span class="suffix">%</span></div>
+          </div>
+          <div class="field">
+            <label for="cInjury">工伤+生育</label>
+            <div class="suffix-wrap"><input type="number" id="cInjury" value="1.2" step="0.1"><span class="suffix">%</span></div>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- 右：结果 -->
+    <section class="card">
+      <div class="result-hero">
+        <div class="label">每月到手工资（估算）</div>
+        <div class="big" id="rNet">—</div>
+        <div class="sub">全年到手约 <b id="rNetYear">—</b> 元</div>
+      </div>
+
+      <table class="breakdown">
+        <tr><th>个人扣款项目</th><th>金额（元/月）</th></tr>
+        <tr><td>养老保险（8%）</td><td id="rPension">—</td></tr>
+        <tr><td>医疗保险（2%）</td><td id="rMedical">—</td></tr>
+        <tr><td>失业保险（0.5%）</td><td id="rUnemployment">—</td></tr>
+        <tr><td>住房公积金</td><td id="rHf">—</td></tr>
+        <tr><td>个人所得税</td><td id="rTax">—</td></tr>
+        <tr class="total"><td>个人缴纳五险一金合计</td><td id="rInsTotal">—</td></tr>
+      </table>
+
+      <table class="breakdown" style="margin-top:14px;">
+        <tr><th>公司为你缴纳（不进工资条）</th><th>金额（元/月）</th></tr>
+        <tr><td>养老保险</td><td id="rcPension">—</td></tr>
+        <tr><td>医疗保险</td><td id="rcMedical">—</td></tr>
+        <tr><td>失业保险</td><td id="rcUnemployment">—</td></tr>
+        <tr><td>工伤+生育保险</td><td id="rcInjury">—</td></tr>
+        <tr><td>住房公积金</td><td id="rcHf">—</td></tr>
+        <tr class="total"><td>公司每月用工总成本（含工资）</td><td id="rcTotal">—</td></tr>
+      </table>
+
+      <div class="note">说明：个人三险比例按全国通行标准（养老 8%、医疗 2%、失业 0.5%）估算，个税按全年均衡发放的累计预扣法折算，未含地方大病医疗等小额项目，结果仅供参考。</div>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p>薪算盘 · 计算结果为估算，具体以当地社保政策、税务及银行为准。</p>
+  </div>
+</footer>
+
+<script>
+function $(id) { return document.getElementById(id); }
+function fmt(n) {
+  if (!isFinite(n)) return '—';
+  return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function num(id) { const v = parseFloat($(id).value); return isNaN(v) ? 0 : v; }
+
+// 综合所得年度税率表（个税法）
+function annualTax(x) {
+  if (x <= 0) return 0;
+  if (x <= 36000) return x * 0.03;
+  if (x <= 144000) return x * 0.10 - 2520;
+  if (x <= 300000) return x * 0.20 - 16920;
+  if (x <= 420000) return x * 0.25 - 31920;
+  if (x <= 660000) return x * 0.30 - 51920;
+  if (x <= 960000) return x * 0.35 - 85920;
+  return x * 0.45 - 181920;
+}
+
+let baseMode = 'same';
+
+function calc() {
+  const salary = num('salary');
+  const base = baseMode === 'same' ? salary : num('insBase');
+  const hfRate = parseFloat($('hfRate').value);
+  const special = num('special');
+
+  const pension = base * 0.08;
+  const medical = base * 0.02;
+  const unemp = base * 0.005;
+  const hf = base * hfRate / 100;
+  const insTotal = pension + medical + unemp + hf;
+
+  const monthlyTaxable = salary - insTotal - 5000 - special;
+  const tax = annualTax(monthlyTaxable * 12) / 12;
+  const net = salary - insTotal - tax;
+
+  $('rPension').textContent = fmt(pension);
+  $('rMedical').textContent = fmt(medical);
+  $('rUnemployment').textContent = fmt(unemp);
+  $('rHf').textContent = fmt(hf);
+  $('rTax').textContent = fmt(tax);
+  $('rInsTotal').textContent = fmt(insTotal);
+  $('rNet').textContent = fmt(net);
+  $('rNetYear').textContent = fmt(net * 12);
+
+  const cPension = base * num('cPension') / 100;
+  const cMedical = base * num('cMedical') / 100;
+  const cUnemp = base * num('cUnemployment') / 100;
+  const cInjury = base * num('cInjury') / 100;
+  const cHf = base * hfRate / 100;
+  $('rcPension').textContent = fmt(cPension);
+  $('rcMedical').textContent = fmt(cMedical);
+  $('rcUnemployment').textContent = fmt(cUnemp);
+  $('rcInjury').textContent = fmt(cInjury);
+  $('rcHf').textContent = fmt(cHf);
+  $('rcTotal').textContent = fmt(salary + cPension + cMedical + cUnemp + cInjury + cHf);
+}
+
+$('baseMode').addEventListener('click', function (e) {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  baseMode = btn.dataset.mode;
+  document.querySelectorAll('#baseMode button').forEach(function (b) { b.classList.toggle('active', b === btn); });
+  $('baseField').classList.toggle('hidden', baseMode === 'same');
+  if (baseMode === 'custom' && !$('insBase').value) $('insBase').value = $('salary').value;
+  calc();
+});
+
+// 专项附加扣除快捷标签：点选即累加/扣除
+$('specialChips').addEventListener('click', function (e) {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  const amt = parseFloat(chip.dataset.amt);
+  chip.classList.toggle('active');
+  const cur = num('special');
+  $('special').value = Math.max(0, chip.classList.contains('active') ? cur + amt : cur - amt);
+  calc();
+});
+
+document.querySelectorAll('input, select').forEach(function (el) {
+  el.addEventListener('input', calc);
+  el.addEventListener('change', calc);
+});
+
+calc();
+</script>
+</body>
+</html>

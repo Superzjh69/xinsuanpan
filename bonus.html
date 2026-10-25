@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>年终奖个税计算器 - 单独计税还是并入综合所得？附临界点避坑 | 薪算盘</title>
+<meta name="description" content="年终奖个人所得税在线计算：自动对比单独计税与并入综合所得两种方式哪个更省税，提示年终奖临界点陷阱（多发一元多缴几千元税）。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧧</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html"><span>🧮</span>薪算盘</a>
+    <nav class="nav">
+      <a href="salary.html">工资到手</a>
+      <a href="bonus.html" class="active">年终奖</a>
+      <a href="mortgage.html">房贷</a>
+      <a href="deposit.html">存款利息</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="page-title">
+    <h1>年终奖个税计算器</h1>
+    <p>年终奖单独计税还是并入工资一起算？填一下，看哪种方式更省税。</p>
+  </div>
+
+  <div class="calc-grid">
+    <!-- 左：输入 -->
+    <section class="card">
+      <h2>填写你的情况</h2>
+
+      <div class="field">
+        <label for="bonus">年终奖金额</label>
+        <div class="suffix-wrap">
+          <input type="number" id="bonus" value="50000" min="0" step="1000">
+          <span class="suffix">元</span>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="salary">税前月薪</label>
+        <div class="suffix-wrap">
+          <input type="number" id="salary" value="15000" min="0" step="500">
+          <span class="suffix">元/月</span>
+        </div>
+      </div>
+
+      <div class="field two-col">
+        <div>
+          <label for="insurance">每月五险一金（个人）</label>
+          <div class="suffix-wrap">
+            <input type="number" id="insurance" value="3375" min="0" step="50">
+            <span class="suffix">元</span>
+          </div>
+        </div>
+        <div>
+          <label for="special">专项附加扣除</label>
+          <div class="suffix-wrap">
+            <input type="number" id="special" value="0" min="0" step="100">
+            <span class="suffix">元/月</span>
+          </div>
+        </div>
+      </div>
+      <div class="hint">不知道五险一金填多少？先用 <a href="salary.html">工资到手计算器</a> 算一下，把「个人缴纳合计」填进来（默认值按月薪 15000、公积金 12% 估算）。</div>
+    </section>
+
+    <!-- 右：结果 -->
+    <section class="card">
+      <div class="result-hero">
+        <div class="label">更省税的方式</div>
+        <div class="big" id="rBest">—</div>
+        <div class="sub" id="rBestSub">—</div>
+      </div>
+
+      <table class="breakdown">
+        <tr><th>两种计税方式对比</th><th>应缴税额</th></tr>
+        <tr><td>单独计税（年终奖÷12 找税率）</td><td id="rAlone">—</td></tr>
+        <tr><td>并入综合所得（跟工资一起算）</td><td id="rMerge">—</td></tr>
+        <tr class="total"><td>两种方式相差</td><td id="rDiff">—</td></tr>
+      </table>
+
+      <div class="warn hidden" id="trapWarn"></div>
+
+      <table class="breakdown" style="margin-top:14px;">
+        <tr><th>年终奖临界点（多发 1 元，多缴税）</th><th>多发 1 元多缴</th></tr>
+        <tr><td>36,000 元</td><td>2,310 元</td></tr>
+        <tr><td>144,000 元</td><td>1,920 元</td></tr>
+        <tr><td>300,000 元</td><td>8,880 元</td></tr>
+        <tr><td>420,000 元</td><td>7,290 元</td></tr>
+        <tr><td>660,000 元</td><td>30,240 元</td></tr>
+        <tr><td>960,000 元</td><td>19,200 元</td></tr>
+      </table>
+
+      <div class="note">说明：全年一次性奖金单独计税政策目前执行至 2027 年 12 月 31 日。计算假设工资全年均衡发放，结果仅供参考。</div>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p>薪算盘 · 计算结果为估算，具体以当地社保政策、税务及银行为准。</p>
+  </div>
+</footer>
+
+<script>
+function $(id) { return document.getElementById(id); }
+function fmt(n) {
+  if (!isFinite(n)) return '—';
+  return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function num(id) { const v = parseFloat($(id).value); return isNaN(v) ? 0 : v; }
+
+function annualTax(x) {
+  if (x <= 0) return 0;
+  if (x <= 36000) return x * 0.03;
+  if (x <= 144000) return x * 0.10 - 2520;
+  if (x <= 300000) return x * 0.20 - 16920;
+  if (x <= 420000) return x * 0.25 - 31920;
+  if (x <= 660000) return x * 0.30 - 51920;
+  if (x <= 960000) return x * 0.35 - 85920;
+  return x * 0.45 - 181920;
+}
+
+// 年终奖单独计税：按月换算税率表
+function bonusTax(b) {
+  const q = b / 12;
+  if (q <= 3000) return b * 0.03;
+  if (q <= 12000) return b * 0.10 - 210;
+  if (q <= 25000) return b * 0.20 - 1410;
+  if (q <= 35000) return b * 0.25 - 2660;
+  if (q <= 55000) return b * 0.30 - 4410;
+  if (q <= 80000) return b * 0.35 - 7160;
+  return b * 0.45 - 15160;
+}
+
+// 各临界点处“多发1元”导致的税额跳升
+const TRAPS = [
+  { limit: 36000, jump: 2310 },
+  { limit: 144000, jump: 1920 },
+  { limit: 300000, jump: 8880 },
+  { limit: 420000, jump: 7290 },
+  { limit: 660000, jump: 30240 },
+  { limit: 960000, jump: 19200 },
+];
+
+function calc() {
+  const bonus = num('bonus');
+  const salary = num('salary');
+  const insurance = num('insurance');
+  const special = num('special');
+
+  // 全年工资部分的应纳税所得额
+  const baseAnnual = (salary - insurance - 5000 - special) * 12;
+
+  const alone = bonus > 0 ? bonusTax(bonus) : 0;
+  // 并入方式下，年终奖带来的新增税 = (base+bonus)的税 − base的税
+  const merge = annualTax(baseAnnual + bonus) - annualTax(baseAnnual);
+
+  $('rAlone').textContent = fmt(alone) + ' 元';
+  $('rMerge').textContent = fmt(Math.max(0, merge)) + ' 元';
+
+  const diff = Math.abs(alone - merge);
+  $('rDiff').textContent = fmt(diff) + ' 元';
+
+  if (alone <= merge) {
+    $('rBest').textContent = '单独计税';
+    $('rBestSub').textContent = '比并入综合所得少缴 ' + fmt(diff) + ' 元';
+  } else {
+    $('rBest').textContent = '并入综合所得';
+    $('rBestSub').textContent = '比单独计税少缴 ' + fmt(diff) + ' 元';
+  }
+
+  // 临界点提示：略高于某个临界点时，宁可少拿
+  const warn = $('trapWarn');
+  const trap = TRAPS.find(function (t) { return bonus > t.limit && bonus <= t.limit * 1.02; });
+  if (trap) {
+    const over = bonus - trap.limit;
+    warn.classList.remove('hidden');
+    warn.textContent = '⚠️ 注意：你的年终奖比临界点 ' + fmtInt(trap.limit) + ' 元只多 ' + fmt(over) + ' 元，却要多缴约 ' + fmtInt(trap.jump) + ' 元税！跟公司商量把年终奖调到 ' + fmtInt(trap.limit) + ' 元（差额并入工资或其他时间发）反而到手更多。';
+  } else {
+    warn.classList.add('hidden');
+  }
+}
+
+function fmtInt(n) { return Math.round(n).toLocaleString('zh-CN'); }
+
+document.querySelectorAll('input').forEach(function (el) {
+  el.addEventListener('input', calc);
+  el.addEventListener('change', calc);
+});
+
+calc();
+</script>
+</body>
+</html>

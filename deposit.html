@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>存款利息计算器 - 定存到期利息、每月攒钱目标测算 | 薪算盘</title>
+<meta name="description" content="在线存款利息计算器：算整存整取到期本息、单利复利对比，还能算每月定存一笔钱，几年后能攒下多少，利率可自行修改。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏦</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html"><span>🧮</span>薪算盘</a>
+    <nav class="nav">
+      <a href="salary.html">工资到手</a>
+      <a href="bonus.html">年终奖</a>
+      <a href="mortgage.html">房贷</a>
+      <a href="deposit.html" class="active">存款利息</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="page-title">
+    <h1>存款利息计算器</h1>
+    <p>一笔钱存银行到期有多少利息？每月坚持攒钱几年后能滚到多少？</p>
+  </div>
+
+  <div class="calc-grid">
+    <!-- 左：输入 -->
+    <section class="card">
+      <h2>填写信息</h2>
+
+      <div class="field">
+        <label>计算方式</label>
+        <div class="segmented" id="mode">
+          <button type="button" data-mode="lump" class="active">一笔钱存定期</button>
+          <button type="button" data-mode="monthly">每月攒一笔</button>
+        </div>
+      </div>
+
+      <div id="lumpInputs">
+        <div class="field">
+          <label for="principal">存入本金</label>
+          <div class="suffix-wrap">
+            <input type="number" id="principal" value="100000" min="0" step="1000">
+            <span class="suffix">元</span>
+          </div>
+        </div>
+        <div class="field two-col">
+          <div>
+            <label for="rate">年利率</label>
+            <div class="suffix-wrap">
+              <input type="number" id="rate" value="1.25" min="0.01" step="0.01">
+              <span class="suffix">%</span>
+            </div>
+          </div>
+          <div>
+            <label for="months">存期</label>
+            <select id="months">
+              <option value="3">3 个月</option>
+              <option value="6">6 个月</option>
+              <option value="12">1 年</option>
+              <option value="24">2 年</option>
+              <option value="36" selected>3 年</option>
+              <option value="60">5 年</option>
+            </select>
+          </div>
+        </div>
+        <div class="chips" id="rateChips">
+          <button type="button" class="chip" data-rate="0.05">活期 0.05%</button>
+          <button type="button" class="chip" data-rate="0.95">一年定存 0.95%</button>
+          <button type="button" class="chip" data-rate="1.25">三年定存 1.25%</button>
+        </div>
+        <div class="field" style="margin-top:12px;">
+          <label>计息方式</label>
+          <div class="segmented" id="interestType">
+            <button type="button" data-mode="simple" class="active">单利（整存整取）</button>
+            <button type="button" data-mode="compound">复利（到期自动转存）</button>
+          </div>
+        </div>
+      </div>
+
+      <div id="monthlyInputs" class="hidden">
+        <div class="field">
+          <label for="monthlyAmount">每月存入</label>
+          <div class="suffix-wrap">
+            <input type="number" id="monthlyAmount" value="2000" min="0" step="100">
+            <span class="suffix">元/月</span>
+          </div>
+        </div>
+        <div class="field two-col">
+          <div>
+            <label for="mRate">年利率（按月复利）</label>
+            <div class="suffix-wrap">
+              <input type="number" id="mRate" value="1.5" min="0.01" step="0.01">
+              <span class="suffix">%</span>
+            </div>
+          </div>
+          <div>
+            <label for="mYears">坚持年数</label>
+            <select id="mYears">
+              <option value="1">1 年</option>
+              <option value="2">2 年</option>
+              <option value="3" selected>3 年</option>
+              <option value="5">5 年</option>
+              <option value="10">10 年</option>
+              <option value="20">20 年</option>
+              <option value="30">30 年</option>
+            </select>
+          </div>
+        </div>
+        <div class="hint">按月复利估算（相当于货币基金/滚存场景），实际产品计息规则可能不同。</div>
+      </div>
+    </section>
+
+    <!-- 右：结果 -->
+    <section class="card">
+      <div class="result-hero">
+        <div class="label" id="rLabel">到期本息合计</div>
+        <div class="big" id="rTotal">—</div>
+        <div class="sub" id="rSub">—</div>
+      </div>
+
+      <table class="breakdown">
+        <tr><th id="rTableLabel">明细</th><th>金额</th></tr>
+        <tr><td id="rRow1Name">本金</td><td id="rRow1">—</td></tr>
+        <tr><td id="rRow2Name">利息</td><td id="rRow2">—</td></tr>
+        <tr><td id="rRow3Name">年化收益</td><td id="rRow3">—</td></tr>
+      </table>
+
+      <div class="note">说明：结果为理论估算，未考虑利率变动、利息税（目前储蓄存款利息免征个税）等因素。</div>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p>薪算盘 · 计算结果为估算，具体以当地社保政策、税务及银行为准。</p>
+  </div>
+</footer>
+
+<script>
+function $(id) { return document.getElementById(id); }
+function fmt(n) {
+  if (!isFinite(n)) return '—';
+  return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function num(id) { const v = parseFloat($(id).value); return isNaN(v) ? 0 : v; }
+
+let mode = 'lump';
+let interestType = 'simple';
+
+function calc() {
+  if (mode === 'lump') {
+    const P = num('principal');
+    const r = num('rate') / 100;
+    const m = parseFloat($('months').value);
+    let total, interest;
+    if (interestType === 'simple') {
+      interest = P * r * m / 12;
+      total = P + interest;
+    } else {
+      total = P * Math.pow(1 + r, m / 12);
+      interest = total - P;
+    }
+    $('rLabel').textContent = '到期本息合计';
+    $('rTotal').textContent = fmt(total) + ' 元';
+    $('rSub').textContent = '存 ' + (m / 12) + ' 年，利息 ' + fmt(interest) + ' 元';
+    $('rRow1Name').textContent = '本金';
+    $('rRow1').textContent = fmt(P) + ' 元';
+    $('rRow2Name').textContent = '利息';
+    $('rRow2').textContent = fmt(interest) + ' 元';
+    $('rRow3Name').textContent = '实际收益率';
+    $('rRow3').textContent = interestType === 'simple'
+      ? r * 100 + '%（单利）'
+      : ((Math.pow(1 + r, m / 12) - 1) / (m / 12) * 100).toFixed(2) + '%（年均）';
+  } else {
+    const m0 = num('monthlyAmount');
+    const i = num('mRate') / 100 / 12;
+    const n = parseFloat($('mYears').value) * 12;
+    // 月末存入、按月复利：FV = m * ((1+i)^n - 1) / i
+    const total = i === 0 ? m0 * n : m0 * (Math.pow(1 + i, n) - 1) / i;
+    const principal = m0 * n;
+    $('rLabel').textContent = '到期总额';
+    $('rTotal').textContent = fmt(total) + ' 元';
+    $('rSub').textContent = '共存 ' + n + ' 个月，其中利息 ' + fmt(total - principal) + ' 元';
+    $('rRow1Name').textContent = '累计存入本金';
+    $('rRow1').textContent = fmt(principal) + ' 元';
+    $('rRow2Name').textContent = '累计利息';
+    $('rRow2').textContent = fmt(total - principal) + ' 元';
+    $('rRow3Name').textContent = '利息占比';
+    $('rRow3').textContent = (total > 0 ? (total - principal) / total * 100 : 0).toFixed(1) + '%';
+  }
+}
+
+$('mode').addEventListener('click', function (e) {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  mode = btn.dataset.mode;
+  document.querySelectorAll('#mode button').forEach(function (b) { b.classList.toggle('active', b === btn); });
+  $('lumpInputs').classList.toggle('hidden', mode !== 'lump');
+  $('monthlyInputs').classList.toggle('hidden', mode !== 'monthly');
+  calc();
+});
+
+$('interestType').addEventListener('click', function (e) {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  interestType = btn.dataset.mode;
+  document.querySelectorAll('#interestType button').forEach(function (b) { b.classList.toggle('active', b === btn); });
+  calc();
+});
+
+$('rateChips').addEventListener('click', function (e) {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  $('rate').value = chip.dataset.rate;
+  document.querySelectorAll('#rateChips .chip').forEach(function (c) { c.classList.toggle('active', c === chip); });
+  calc();
+});
+
+document.querySelectorAll('input, select').forEach(function (el) {
+  el.addEventListener('input', calc);
+  el.addEventListener('change', calc);
+});
+
+calc();
+</script>
+</body>
+</html>

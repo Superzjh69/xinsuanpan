@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>房贷计算器 - 等额本息/等额本金月供、利息计算，提前还款对比 | 薪算盘</title>
+<meta name="description" content="房贷月供计算器：支持等额本息、等额本金两种方式，输入金额、年限、利率即可算出月供、总利息，还可对比提前还款选缩短年限还是减少月供更划算。">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏠</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="container header-inner">
+    <a class="logo" href="index.html"><span>🧮</span>薪算盘</a>
+    <nav class="nav">
+      <a href="salary.html">工资到手</a>
+      <a href="bonus.html">年终奖</a>
+      <a href="mortgage.html" class="active">房贷</a>
+      <a href="deposit.html">存款利息</a>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+  <div class="page-title">
+    <h1>房贷计算器</h1>
+    <p>算清每月还多少、利息总共多少，提前还款到底能省多少。</p>
+  </div>
+
+  <div class="calc-grid">
+    <!-- 左：输入 -->
+    <section class="card">
+      <h2>贷款信息</h2>
+
+      <div class="field">
+        <label for="amount">贷款总额</label>
+        <div class="suffix-wrap">
+          <input type="number" id="amount" value="100" min="1" step="5">
+          <span class="suffix">万元</span>
+        </div>
+      </div>
+
+      <div class="field two-col">
+        <div>
+          <label for="years">贷款年限</label>
+          <select id="years">
+            <option value="5">5 年</option>
+            <option value="10">10 年</option>
+            <option value="15">15 年</option>
+            <option value="20">20 年</option>
+            <option value="25">25 年</option>
+            <option value="30" selected>30 年</option>
+          </select>
+        </div>
+        <div>
+          <label for="rate">年利率</label>
+          <div class="suffix-wrap">
+            <input type="number" id="rate" value="3.3" min="0.1" step="0.01">
+            <span class="suffix">%</span>
+          </div>
+        </div>
+      </div>
+      <div class="chips" id="rateChips">
+        <button type="button" class="chip" data-rate="2.6">公积金 2.6%</button>
+        <button type="button" class="chip" data-rate="3.05">首套商贷 3.05%</button>
+        <button type="button" class="chip" data-rate="3.3">商贷 3.3%</button>
+      </div>
+      <div class="hint" style="margin-top:6px;">利率随时可改，请以银行实际审批利率为准。</div>
+
+      <div class="field">
+        <label>还款方式</label>
+        <div class="segmented" id="method">
+          <button type="button" data-mode="aei" class="active">等额本息</button>
+          <button type="button" data-mode="apr" >等额本金</button>
+        </div>
+        <div class="hint" id="methodHint">等额本息：每月还款额固定，前期利息占比高。</div>
+      </div>
+
+      <details class="advanced" id="prepayBox">
+        <summary>提前还款测算（目前仅支持等额本息）</summary>
+        <div class="two-col">
+          <div class="field">
+            <label for="paidMonths">已还款月数</label>
+            <input type="number" id="paidMonths" value="36" min="1" step="1">
+          </div>
+          <div class="field">
+            <label for="prepayAmount">提前还款金额</label>
+            <div class="suffix-wrap">
+              <input type="number" id="prepayAmount" value="20" min="1" step="1">
+              <span class="suffix">万元</span>
+            </div>
+          </div>
+        </div>
+        <div class="note" style="margin-top:4px;">假设在第 N 期月供扣款后立即提前还款、不收违约金，对比「缩短年限」和「减少月供」两种方式。</div>
+      </details>
+    </section>
+
+    <!-- 右：结果 -->
+    <section class="card">
+      <div class="result-hero">
+        <div class="label" id="rMonthLabel">每月月供</div>
+        <div class="big" id="rMonthly">—</div>
+        <div class="sub" id="rMonthlySub">每月固定</div>
+      </div>
+
+      <table class="breakdown">
+        <tr><th>还款概况</th><th>金额</th></tr>
+        <tr><td>贷款本金</td><td id="rPrincipal">—</td></tr>
+        <tr><td>支付利息总额</td><td id="rInterest">—</td></tr>
+        <tr><td>本息合计</td><td id="rTotalPay">—</td></tr>
+        <tr><td>利息占总还款</td><td id="rInterestRatio">—</td></tr>
+      </table>
+
+      <div class="bar">
+        <div class="b-principal" id="barPrincipal" style="width:70%">本金</div>
+        <div class="b-interest" id="barInterest" style="width:30%">利息</div>
+      </div>
+      <div class="bar-legend">
+        <i style="background:var(--primary)"></i>本金
+        <i style="background:var(--amber)"></i>利息
+      </div>
+
+      <div id="prepayResult" class="hidden">
+        <table class="breakdown" style="margin-top:10px;">
+          <tr><th>提前还款对比</th><th>缩短年限</th><th>减少月供</th></tr>
+          <tr><td>之后月供</td><td id="rPPMonthlyA">—</td><td id="rPPMonthlyB">—</td></tr>
+          <tr><td>剩余还款时间</td><td id="rPPTimeA">—</td><td id="rPPTimeB">—</td></tr>
+          <tr><td>节省利息</td><td id="rPPSaveA">—</td><td id="rPPSaveB">—</td></tr>
+        </table>
+        <div class="good" id="rPPAdvice">—</div>
+      </div>
+
+      <div class="note">说明：结果为按月计息的理论估算，与银行实际按日计息、利率调整日等方式可能略有出入。</div>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="container">
+    <p>薪算盘 · 计算结果为估算，具体以当地社保政策、税务及银行为准。</p>
+  </div>
+</footer>
+
+<script>
+function $(id) { return document.getElementById(id); }
+function fmt(n) {
+  if (!isFinite(n)) return '—';
+  return n.toLocaleString('zh-CN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function fmtInt(n) { return isFinite(n) ? Math.round(n).toLocaleString('zh-CN') : '—'; }
+function num(id) { const v = parseFloat($(id).value); return isNaN(v) ? 0 : v; }
+
+let method = 'aei';
+
+function balanceAfter(P, i, M, k) {
+  // 等额本息还 k 期后的剩余本金
+  if (i === 0) return P - M * k;
+  const f = Math.pow(1 + i, k);
+  return P * f - M * (f - 1) / i;
+}
+
+function calc() {
+  const P = num('amount') * 10000;
+  const n = num('years') * 12;
+  const i = num('rate') / 100 / 12;
+
+  let monthly, totalInterest, monthlySub;
+  if (method === 'aei') {
+    if (i === 0) monthly = P / n;
+    else monthly = P * i * Math.pow(1 + i, n) / (Math.pow(1 + i, n) - 1);
+    totalInterest = monthly * n - P;
+    monthlySub = '每月固定';
+  } else {
+    const g = P / n; // 每月应还本金
+    const first = g + P * i;
+    const drop = g * i;
+    monthly = first;
+    totalInterest = i * P * (n + 1) / 2;
+    monthlySub = '首月 ' + fmt(first) + ' 元，之后每月递减约 ' + fmt(drop) + ' 元';
+  }
+  const totalPay = P + totalInterest;
+
+  $('rMonthly').textContent = fmt(monthly);
+  $('rMonthlySub').textContent = monthlySub;
+  $('rPrincipal').textContent = fmt(P) + ' 元';
+  $('rInterest').textContent = fmt(totalInterest) + ' 元';
+  $('rTotalPay').textContent = fmt(totalPay) + ' 元';
+  $('rInterestRatio').textContent = (totalInterest / totalPay * 100).toFixed(1) + '%';
+
+  const pRatio = Math.max(5, Math.min(95, P / totalPay * 100));
+  $('barPrincipal').style.width = pRatio + '%';
+  $('barInterest').style.width = (100 - pRatio) + '%';
+
+  calcPrepay(P, n, i, monthly);
+}
+
+function calcPrepay(P, n, i, M) {
+  const box = $('prepayResult');
+  if (method !== 'aei') { box.classList.add('hidden'); return; }
+  const k = Math.min(Math.floor(num('paidMonths')), n - 12);
+  const X = num('prepayAmount') * 10000;
+  if (k < 1 || X <= 0) { box.classList.add('hidden'); return; }
+
+  const B = balanceAfter(P, i, M, k);          // 不提前还款时的剩余本金
+  if (X >= B) { box.classList.add('hidden'); return; }
+  const Bx = B - X;                             // 提前还款后的剩余本金
+  const restN = n - k;
+  const baseInterest = M * restN - B;           // 不提前还款的剩余利息
+
+  // 方式A：缩短年限（月供不变）
+  let tA = restN;
+  if (i > 0) tA = Math.ceil(Math.log(M / (M - Bx * i)) / Math.log(1 + i));
+  const saveA = baseInterest - (M * tA - Bx);
+
+  // 方式B：减少月供（期限不变）
+  let M2 = Bx / restN;
+  if (i > 0) M2 = Bx * i * Math.pow(1 + i, restN) / (Math.pow(1 + i, restN) - 1);
+  const saveB = baseInterest - (M2 * restN - Bx);
+
+  box.classList.remove('hidden');
+  $('rPPMonthlyA').textContent = fmt(M) + ' 元';
+  $('rPPMonthlyB').textContent = fmt(M2) + ' 元';
+  $('rPPTimeA').textContent = tA + ' 个月（约 ' + (tA / 12).toFixed(1) + ' 年）';
+  $('rPPTimeB').textContent = restN + ' 个月（约 ' + (restN / 12).toFixed(1) + ' 年）';
+  $('rPPSaveA').textContent = fmt(saveA) + ' 元';
+  $('rPPSaveB').textContent = fmt(saveB) + ' 元';
+  $('rPPAdvice').textContent = saveA > saveB
+    ? '✅ 同样提前还 ' + num('prepayAmount') + ' 万：选「缩短年限」多省 ' + fmt(saveA - saveB) + ' 元利息，但月供压力不变；追求月供减压就选「减少月供」。'
+    : '✅ 两种方式节省利息接近，选「减少月供」可立刻减轻月度压力。';
+}
+
+$('method').addEventListener('click', function (e) {
+  const btn = e.target.closest('button');
+  if (!btn) return;
+  method = btn.dataset.mode;
+  document.querySelectorAll('#method button').forEach(function (b) { b.classList.toggle('active', b === btn); });
+  $('methodHint').textContent = method === 'aei'
+    ? '等额本息：每月还款额固定，前期利息占比高。'
+    : '等额本金：每月还的本金固定，月供逐月递减，总利息更少但前期压力大。';
+  $('rMonthLabel').textContent = method === 'aei' ? '每月月供' : '首月月供';
+  calc();
+});
+
+$('rateChips').addEventListener('click', function (e) {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  $('rate').value = chip.dataset.rate;
+  document.querySelectorAll('#rateChips .chip').forEach(function (c) { c.classList.toggle('active', c === chip); });
+  calc();
+});
+
+document.querySelectorAll('input, select').forEach(function (el) {
+  el.addEventListener('input', calc);
+  el.addEventListener('change', calc);
+});
+
+calc();
+</script>
+</body>
+</html>
